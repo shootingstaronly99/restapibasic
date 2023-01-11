@@ -4,7 +4,7 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.repository.TagRepo;
 import com.epam.esm.repository.mapper.TagRowMapper;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -20,7 +20,7 @@ public class TagRepoImpl implements TagRepo {
     public static final String DELETE_TAG = " DELETE  FROM tag  WHERE tag_id = ?";
     public static final String SELECT_TAG_BY_NAME = "SELECT tag_id,  tag_name    FROM tag   WHERE tag_name = ?";
 
-    @Autowired
+
     public TagRepoImpl(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
 

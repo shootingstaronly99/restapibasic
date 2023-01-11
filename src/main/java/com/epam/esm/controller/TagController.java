@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins = "localhost:8080")
+@CrossOrigin(origins = "localhost:8090")
 @RequiredArgsConstructor
-@RequestMapping(value = "api/tag",produces = "application/json")
+@RequestMapping(value = "/api/tag",produces = "application/json")
 public class TagController {
     Logger logger = LoggerFactory.getLogger(TagController.class.getName());
     private final TagService tagService;
@@ -26,6 +26,12 @@ public class TagController {
     @GetMapping
     public ResponseEntity<List<Tag>> getAllTag() {
         return ResponseEntity.ok(tagService.getAll());
+    }
+
+
+    @GetMapping(value = "/test")
+    public ResponseEntity<String> check() {
+        return ResponseEntity.ok("OK");
     }
 
     @GetMapping("/{id}")
