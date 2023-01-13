@@ -4,7 +4,6 @@ import com.epam.esm.entity.GiftCertificates;
 import com.epam.esm.exception.IncorrectParameterException;
 import com.epam.esm.repository.GiftCertificatesRepo;
 import com.epam.esm.service.GiftCertificatesService;
-
 import com.epam.esm.validator.GiftValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,8 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.epam.esm.repository.mapper.ColumnName.*;
-import static com.epam.esm.repository.mapper.ColumnName.TAG_NAME;
 import static com.epam.esm.repository.query.QueryParam.*;
 
 @Service
@@ -26,11 +23,13 @@ import static com.epam.esm.repository.query.QueryParam.*;
 public class GiftCertificateServiceImpl implements GiftCertificatesService {
     private final GiftCertificatesRepo giftCertificatesRepo;
 
+
     @Override
     public List<GiftCertificates> getAll() throws NullPointerException {
+
         return giftCertificatesRepo.findAll();
     }
-    
+
     @Override
     public Optional<GiftCertificates> findById(Integer id) {
         return giftCertificatesRepo.findById(id);
@@ -50,19 +49,15 @@ public class GiftCertificateServiceImpl implements GiftCertificatesService {
 
     @Override
     public boolean update(int id, GiftCertificates giftCertificate) throws IncorrectParameterException {
-        //Get gift to update by ID
-        Optional<GiftCertificates> certificate = giftCertificatesRepo.findById(id);
-        //Extract Gift from Wrapper
-        GiftCertificates gift = new GiftCertificates();
+         Optional<GiftCertificates> certificate = giftCertificatesRepo.findById(id);
+         GiftCertificates gift = new GiftCertificates();
         if (certificate.isPresent()) {
             gift = certificate.get();
         }
-        //Get Validated Gift
-        GiftCertificates validatedGift = GiftValidator.validateForUpdate(gift, giftCertificate);
+         GiftCertificates validatedGift = GiftValidator.validateForUpdate(gift, giftCertificate);
 
         validatedGift.setLast_update_date(LocalDateTime.now());
-        //Update GiftCertificate
-        return giftCertificatesRepo.update(gift);
+         return giftCertificatesRepo.update(gift);
     }
 
     @Override

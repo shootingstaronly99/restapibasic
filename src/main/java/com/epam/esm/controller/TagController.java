@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins = "localhost:8090")
+@CrossOrigin(origins = "localhost:8080")
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/tag",produces = "application/json")
+@RequestMapping(value = "/api/tag", produces = "application/json")
 public class TagController {
     Logger logger = LoggerFactory.getLogger(TagController.class.getName());
     private final TagService tagService;
@@ -28,11 +28,6 @@ public class TagController {
         return ResponseEntity.ok(tagService.getAll());
     }
 
-
-    @GetMapping(value = "/test")
-    public ResponseEntity<String> check() {
-        return ResponseEntity.ok("OK");
-    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> findTagById(@PathVariable int id) {
@@ -59,14 +54,14 @@ public class TagController {
     }
 
     @PostMapping()
-    public ResponseEntity<?> create(@RequestBody Tag entity) throws Exception {
+    public ResponseEntity<Object> create(@RequestBody Tag entity) {
         tagService.create(entity);
         return ResponseHandler.generateResponse(ResponseMessage.SUCCESSFULLY_CREATED, HttpStatus.OK);
 
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Integer id) {
+    public ResponseEntity<Object> delete(@PathVariable Integer id) {
         boolean check = tagService.delete(id);
         if (check) {
             return ResponseHandler.generateResponse(ResponseMessage.SUCCESSFULLY_DELETED_TAG + id, HttpStatus.OK);

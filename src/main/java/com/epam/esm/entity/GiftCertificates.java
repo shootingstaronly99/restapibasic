@@ -1,13 +1,15 @@
 package com.epam.esm.entity;
 
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 @Data
 @Builder
-//@NoArgsConstructor
 @AllArgsConstructor
 public class GiftCertificates {
     private Long id;

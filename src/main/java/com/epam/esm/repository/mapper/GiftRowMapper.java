@@ -1,7 +1,6 @@
 package com.epam.esm.repository.mapper;
 
 import com.epam.esm.entity.GiftCertificates;
-
 import com.epam.esm.entity.Tag;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -17,7 +16,7 @@ import static com.epam.esm.repository.mapper.ColumnName.*;
 
 @Component
 public class GiftRowMapper implements ResultSetExtractor<List<GiftCertificates>> {
-     @Override
+    @Override
     public List<GiftCertificates> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<GiftCertificates> giftCertificates = new ArrayList<>();
         rs.next();
@@ -30,8 +29,12 @@ public class GiftRowMapper implements ResultSetExtractor<List<GiftCertificates>>
                     .price(rs.getDouble(GIFT_PRICE))
                     .duration(rs.getInt(GIFT_DURATION))
                     .create_date(rs.getTimestamp(GIFT_CREATE_DATE).toLocalDateTime())
-//                    .last_update_date(rs.getTimestamp(GIFT_LAST_UPDATE_DATE).toLocalDateTime())
                     .build();
+            String lastUpdateDate = rs.getString(GIFT_LAST_UPDATE_DATE);
+            if (lastUpdateDate != null) {
+                giftCertificate.setLast_update_date(rs.getTimestamp(GIFT_LAST_UPDATE_DATE).toLocalDateTime());
+            }
+
             List<Tag> tags = new ArrayList<>();
             while (!rs.isAfterLast() && rs.getInt(GIFT_ID) == giftCertificate.getId()) {
                 Tag tag = Tag.builder()

@@ -18,19 +18,21 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(value = "api/gift")
+@CrossOrigin(origins = "localhost:8080")
+
+@RequestMapping(value = "/api/gift", produces = "application/json")
 public class GiftCertificatesController {
     private final GiftCertificatesService giftCertificateService;
+
     @Autowired
     public GiftCertificatesController(GiftCertificatesService giftCertificateService) {
         this.giftCertificateService = giftCertificateService;
     }
+
     Logger logger = LoggerFactory.getLogger(GiftCertificatesController.class.getName());
 
-    //GET all
     @GetMapping
     public ResponseEntity<List<GiftCertificates>> getAll() {
-        logger.error("getall");
         return ResponseEntity.ok(giftCertificateService.getAll());
     }
 
@@ -40,7 +42,7 @@ public class GiftCertificatesController {
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<?> getById(@PathVariable int id) {
+    public ResponseEntity<Object> getById(@PathVariable int id) {
         Optional<GiftCertificates> giftCertificateOptional = giftCertificateService.findById(id);
         GiftCertificates giftCertificate;
         if (giftCertificateOptional.isPresent()) {
@@ -51,7 +53,7 @@ public class GiftCertificatesController {
         }
     }
 
-    //Post mapping
+
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Object> create(@RequestBody GiftCertificates entity) {
@@ -69,9 +71,8 @@ public class GiftCertificatesController {
         }
     }
 
-    //Delete
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable("id") Integer id) {
+    public ResponseEntity<Object> delete(@PathVariable("id") Integer id) {
         if (giftCertificateService.delete(id)) {
             return ResponseHandler.generateResponse(ResponseMessage.SUCCESSFULLY_DELETED + id, HttpStatus.OK);
         }

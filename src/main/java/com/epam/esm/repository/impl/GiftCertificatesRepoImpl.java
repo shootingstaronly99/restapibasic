@@ -7,7 +7,6 @@ import com.epam.esm.repository.TagRepo;
 import com.epam.esm.repository.mapper.GiftRowMapper;
 
 import com.epam.esm.repository.query.QueryCreator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementCreatorFactory;
@@ -31,7 +30,6 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
     public static final String DELETE_GIFT_CERTIFICATE_TAG_BY_ID = " DELETE FROM gift_tags WHERE gift_id = ?";
     public static final String DELETE_GIFT_CERTIFICATE_BY_ID = " DELETE FROM gift_certificates WHERE id = ?";
     public static final String UPDATE_GIFT_CERTIFICATE = "UPDATE gift_certificates SET name=?,  description=?, price=?,  duration=?, last_update_date=?  WHERE id =?";
-    //TODO query not clear
     public static final String UPDATE_GIFT_CERTIFICATE_TAG = "UPDATE tag SET tag_name= ? WHERE tag_id= ?";
     public static final String CREATE_TAG = "INSERT INTO tag (tag_name) VALUES(?)";
     public static final String CREATE_GIFT_WITH_TAG = " INSERT INTO gift_tags  (gift_id , tag_id) VALUES(?,?)";
@@ -40,7 +38,7 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
     private final JdbcTemplate jdbcTemplate;
     private final TagRepo tagRepo;
 
-    @Autowired
+
     public GiftCertificatesRepoImpl(DataSource dataSource) {
         jdbcTemplate = new JdbcTemplate(dataSource);
         tagRepo = new TagRepoImpl(dataSource);
@@ -66,19 +64,14 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
         return jdbcTemplate.query(query, new GiftRowMapper());
     }
 
-    //CREATE operations
     @Override
     public void create(GiftCertificates giftCertificate) {
         giftCertificate.setCreate_date(LocalDateTime.now());
-        //Get ID of newly created GiftCertificate
         int giftCertificateId = createGiftCertificate(giftCertificate);
-        //Get TAGS name to check on uniqueness
         List<Tag> list = giftCertificate.getTags();
-        //Create tags which linked to the GiftCertificate
         createTags(giftCertificateId, list);
     }
 
-    //DELETE operations
     @Override
     public boolean delete(Integer id) {
         int giftTag = jdbcTemplate.update(DELETE_GIFT_CERTIFICATE_TAG_BY_ID, id);
@@ -87,7 +80,6 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
         return (giftCertificate & giftTag) == 1;
     }
 
-    //UPDATE operations
     @Override
     public boolean update(GiftCertificates giftCertificate) {
         giftCertificate.setLast_update_date(LocalDateTime.now());
@@ -108,9 +100,7 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
 
 
     private int createTag(Tag tag) {
-        //Create Statement for Tag
         PreparedStatementCreatorFactory pscfTag = new PreparedStatementCreatorFactory(CREATE_TAG, Types.VARCHAR);
-        //Call to get generated key of the new Tag
         pscfTag.setReturnGeneratedKeys(true);
 
         PreparedStatementCreator pscTag = pscfTag.newPreparedStatementCreator(
@@ -119,7 +109,6 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
 
 
         GeneratedKeyHolder tagKeyHolder = new GeneratedKeyHolder();
-        //Create new Tag in the DB
         jdbcTemplate.update(pscTag, tagKeyHolder);
 
         int newId;
@@ -128,18 +117,14 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
         } else {
             newId= tagKeyHolder.getKey().intValue();
         }
-        //Get ID of newly created GiftCertificate
-//        return (int) Objects.requireNonNull(tagKeyHolder.getKeys().get("tag_id"));
         return newId;
     }
 
     private int createGiftCertificate(GiftCertificates giftCertificate) {
-        //Create Statement for GiftCertificate
         PreparedStatementCreatorFactory pscfGift = new PreparedStatementCreatorFactory(
                 CREATE_GIFT_CERTIFICATE,
                 Types.VARCHAR, Types.VARCHAR, Types.DOUBLE, Types.INTEGER, Types.TIMESTAMP, Types.TIMESTAMP
         );
-        //Call to get generated key of the new GiftCertificate
         pscfGift.setReturnGeneratedKeys(true);
 
         PreparedStatementCreator pscGift = pscfGift.newPreparedStatementCreator(
@@ -152,7 +137,6 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
                         giftCertificate.getLast_update_date()));
 
         GeneratedKeyHolder giftKeyHolder = new GeneratedKeyHolder();
-        //Create new Gift in DB
         jdbcTemplate.update(pscGift, giftKeyHolder);
         int newId;
         if (giftKeyHolder.getKeys().size() > 1) {
@@ -160,26 +144,19 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
         } else {
             newId= giftKeyHolder.getKey().intValue();
         }
-        //Get ID of newly created GiftCertificate
-//        return (int) Objects.requireNonNull(giftKeyHolder.getKeys().get("id"));
         return newId;
     }
 
     private void createTags(int giftCertificateId, List<Tag> tags) {
-        //Pass through the List of gifts
         for (Tag tag : tags) {
-            //Get name of each tag
             String name = tag.getName();
-            //Find tag by name if it exists
             Optional<Tag> optTag = tagRepo.findByName(name);
             if (optTag.isPresent()) {
-                //If tag exists we will pass it into table directly
                 if (Objects.equals(tag.getName(), name)) {
                     Long tagId = tag.getId();
                     jdbcTemplate.update(CREATE_GIFT_WITH_TAG, giftCertificateId, tagId);
                 }
             } else {
-                //If tag does not exist we will create it and then pass to the table
                 int tagId = createTag(tag);
                 jdbcTemplate.update(CREATE_GIFT_WITH_TAG, giftCertificateId, tagId);
             }
