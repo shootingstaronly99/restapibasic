@@ -2,6 +2,7 @@ package com.epam.esm.service.impl;
 
 import com.epam.esm.entity.GiftCertificates;
 import com.epam.esm.exception.IncorrectParameterException;
+import com.epam.esm.exception.NullPointerException;
 import com.epam.esm.repository.GiftCertificatesRepo;
 import com.epam.esm.service.GiftCertificatesService;
 import com.epam.esm.validator.GiftValidator;
@@ -31,13 +32,13 @@ public class GiftCertificateServiceImpl implements GiftCertificatesService {
     }
 
     @Override
-    public Optional<GiftCertificates> findById(Integer id) {
+    public Optional<GiftCertificates> findById(Integer id) throws NullPointerException {
         return giftCertificatesRepo.findById(id);
     }
 
     @Override
     @Transactional
-    public void create(GiftCertificates giftCertificate) {
+    public void create(GiftCertificates giftCertificate) throws NullPointerException {
         giftCertificatesRepo.create(giftCertificate);
     }
 
@@ -48,7 +49,7 @@ public class GiftCertificateServiceImpl implements GiftCertificatesService {
     }
 
     @Override
-    public boolean update(int id, GiftCertificates giftCertificate) throws IncorrectParameterException {
+    public boolean update(int id, GiftCertificates giftCertificate) throws IncorrectParameterException ,NullPointerException{
          Optional<GiftCertificates> certificate = giftCertificatesRepo.findById(id);
          GiftCertificates gift = new GiftCertificates();
         if (certificate.isPresent()) {
@@ -56,7 +57,7 @@ public class GiftCertificateServiceImpl implements GiftCertificatesService {
         }
          GiftCertificates validatedGift = GiftValidator.validateForUpdate(gift, giftCertificate);
 
-        validatedGift.setLast_update_date(LocalDateTime.now());
+        validatedGift.setLastUpdateDate(LocalDateTime.now());
          return giftCertificatesRepo.update(gift);
     }
 

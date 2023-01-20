@@ -4,6 +4,7 @@ package com.epam.service;
 import com.epam.esm.entity.GiftCertificates;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.IncorrectParameterException;
+import com.epam.esm.exception.NullPointerException;
 import com.epam.esm.repository.impl.GiftCertificatesRepoImpl;
 import com.epam.esm.service.impl.GiftCertificateServiceImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -51,13 +52,13 @@ class GiftCertificateServiceImplTest {
     }
 
     @Test
-    void shouldFindAllGift() {
+    void shouldFindAllGift() throws NullPointerException {
         List<GiftCertificates> giftCertificates = giftCertificateService.getAll();
         assertEquals(5, giftCertificates.size());
     }
 
     @Test
-    void shouldCreateGift() {
+    void shouldCreateGift() throws NullPointerException{
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime createDate = LocalDateTime.parse("2022-10-17 11:15:10", formatter);
         LocalDateTime lastUpdateDate = LocalDateTime.parse("2022-10-05 11:15:10", formatter);
@@ -86,7 +87,7 @@ class GiftCertificateServiceImplTest {
     }
 
     @Test
-    void shouldUpdate() throws IncorrectParameterException {
+    void shouldUpdate() throws IncorrectParameterException,NullPointerException {
         int targetGift = 3;
         Optional<GiftCertificates> certificate = giftCertificateService.findById(targetGift);
         GiftCertificates giftCertificate = new GiftCertificates();

@@ -1,16 +1,16 @@
 package com.epam.esm.repository.impl;
 
 import com.epam.esm.entity.Tag;
+import com.epam.esm.exception.NullPointerException;
 import com.epam.esm.repository.TagRepo;
 import com.epam.esm.repository.mapper.TagRowMapper;
-
-
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.List;
 import java.util.Optional;
+
 @Repository
 public class TagRepoImpl implements TagRepo {
     private final JdbcTemplate jdbcTemplate;
@@ -32,9 +32,9 @@ public class TagRepoImpl implements TagRepo {
     }
 
     @Override
-    public Optional<Tag> findById(Integer id) {
+    public Optional<Tag> findById(Integer id) throws NullPointerException {
         List<Tag> list = jdbcTemplate.query(SELECT_TAG_BY_ID, new TagRowMapper(), id);
-               return !list.isEmpty() ? Optional.of(list.get(0)) :
+        return !list.isEmpty() ? Optional.of(list.get(0)) :
                 Optional.empty();
     }
 
@@ -44,14 +44,13 @@ public class TagRepoImpl implements TagRepo {
     }
 
 
-
     @Override
     public boolean delete(Integer id) {
         return jdbcTemplate.update(DELETE_TAG, id) != 0;
     }
 
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(Integer id) {
         jdbcTemplate.query(DELETE_TAG, new TagRowMapper());
     }
 

@@ -1,6 +1,7 @@
 package com.epam.service;
 
 import com.epam.esm.entity.Tag;
+import com.epam.esm.exception.NullPointerException;
 import com.epam.esm.repository.impl.TagRepoImpl;
 import com.epam.esm.service.impl.TagServiceImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -50,7 +51,7 @@ class TagServiceTest {
     }
 
     @Test
-    void shouldFindByIdTag() {
+    void shouldFindByIdTag()throws NullPointerException  {
         Optional<Tag> tagOptional = tagServiceImpl.findById(2);
         Tag tag = new Tag();
         if (tagOptional.isPresent()) {
@@ -61,7 +62,7 @@ class TagServiceTest {
 
 
     @Test
-    void shouldCreateTag() {
+    void shouldCreateTag() throws NullPointerException {
         Long id = 6L;
         Tag tagToCreate = new Tag(id, "Tag 6");
         System.out.println(tagToCreate);
@@ -75,7 +76,7 @@ class TagServiceTest {
     }
 
     @Test
-    void shouldDeleteTag() {
+    void shouldDeleteTag()throws NullPointerException {
         tagServiceImpl.delete(4);
         List<Tag> tags = tagServiceImpl.getAll();
         assertEquals(4, tags.size());

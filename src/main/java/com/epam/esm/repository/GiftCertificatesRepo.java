@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public interface GiftCertificatesRepo extends CommonRepo<GiftCertificates, Long> {
+public interface GiftCertificatesRepo extends CommonRepo<GiftCertificates> {
     List<GiftCertificates> getWithFilters(Map<String, String> fields);
 
     boolean update(GiftCertificates giftCertificate);

@@ -15,7 +15,7 @@ import static com.epam.esm.repository.mapper.ColumnName.*;
 
 
 @Component
-public class GiftRowMapper implements ResultSetExtractor<List<GiftCertificates>> {
+public class GiftRowMapper implements ResultSetExtractor<List<GiftCertificates>>  {
     @Override
     public List<GiftCertificates> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<GiftCertificates> giftCertificates = new ArrayList<>();
@@ -28,11 +28,11 @@ public class GiftRowMapper implements ResultSetExtractor<List<GiftCertificates>>
                     .description(rs.getString(GIFT_DESCRIPTION))
                     .price(rs.getDouble(GIFT_PRICE))
                     .duration(rs.getInt(GIFT_DURATION))
-                    .create_date(rs.getTimestamp(GIFT_CREATE_DATE).toLocalDateTime())
+                    .createDate(rs.getTimestamp(GIFT_CREATE_DATE).toLocalDateTime())
                     .build();
             String lastUpdateDate = rs.getString(GIFT_LAST_UPDATE_DATE);
             if (lastUpdateDate != null) {
-                giftCertificate.setLast_update_date(rs.getTimestamp(GIFT_LAST_UPDATE_DATE).toLocalDateTime());
+                giftCertificate.setLastUpdateDate(rs.getTimestamp(GIFT_LAST_UPDATE_DATE).toLocalDateTime());
             }
 
             List<Tag> tags = new ArrayList<>();

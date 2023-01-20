@@ -2,6 +2,7 @@ package com.epam.repository;
 
 import com.epam.esm.entity.GiftCertificates;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.exception.NullPointerException;
 import com.epam.esm.repository.GiftCertificatesRepo;
 import com.epam.esm.repository.impl.GiftCertificatesRepoImpl;
 
@@ -43,7 +44,7 @@ class GiftCertificateRepoTest {
 
 
     @Test
-    void shouldGetGiftCertificateById() {
+    void shouldGetGiftCertificateById() throws NullPointerException {
         Optional<GiftCertificates> giftCertificateOpt = giftCertificatesRepo.findById(2);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime createDate = LocalDateTime.parse("2022-11-12 11:15:10", formatter);
@@ -70,7 +71,7 @@ class GiftCertificateRepoTest {
     }
 
     @Test
-    void shouldUpdateGiftCertificate() {
+    void shouldUpdateGiftCertificate() throws NullPointerException{
         int targetGift = 3;
         //Get certificate to update
         Optional<GiftCertificates> certificate = giftCertificatesRepo.findById(targetGift);
@@ -103,7 +104,7 @@ class GiftCertificateRepoTest {
     }
 
     @Test
-    void shouldCreateGiftCertificate() {
+    void shouldCreateGiftCertificate()throws NullPointerException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime createDate = LocalDateTime.parse("2022-10-17 11:15:10", formatter);
         LocalDateTime lastUpdateDate = LocalDateTime.parse("2022-10-05 11:15:10", formatter);

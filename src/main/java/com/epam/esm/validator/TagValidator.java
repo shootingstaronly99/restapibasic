@@ -20,7 +20,7 @@ public class TagValidator {
     }
     private void validateName(String name) throws IncorrectParameterException {
         if (name == null || name.length() < MIN_LENGTH_NAME || name.length() > MAX_LENGTH_NAME || StringUtils.isNumeric(name)) {
-            throw new IncorrectParameterException(BAD_GIFT_CERTIFICATE_NAME);
+            throw new IncorrectParameterException(String.valueOf(BAD_GIFT_CERTIFICATE_NAME));
         }
     }
 

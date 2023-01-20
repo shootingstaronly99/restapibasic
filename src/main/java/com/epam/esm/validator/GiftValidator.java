@@ -27,7 +27,7 @@ public class GiftValidator {
         initialGift.setDescription(description);
 
         Double price = giftForUpdate.getPrice();
-        validatePrice(Double.valueOf(price));
+        validatePrice(price);
         initialGift.setPrice(price);
 
         int duration = giftForUpdate.getDuration();
@@ -39,25 +39,25 @@ public class GiftValidator {
 
     private void validateName(String name) throws IncorrectParameterException {
         if (name == null || name.length() < MIN_LENGTH_NAME || name.length() > MAX_LENGTH_NAME || StringUtils.isNumeric(name)) {
-            throw new IncorrectParameterException(BAD_GIFT_CERTIFICATE_NAME);
+            throw new IncorrectParameterException(String.valueOf(BAD_GIFT_CERTIFICATE_NAME));
         }
     }
 
     private void validateDescription(String description) throws IncorrectParameterException {
         if (description == null || description.length() > MAX_LENGTH_DESCRIPTION || StringUtils.isNumeric(description)) {
-            throw new IncorrectParameterException(BAD_GIFT_CERTIFICATE_DESCRIPTION);
+            throw new IncorrectParameterException(String.valueOf(BAD_GIFT_CERTIFICATE_DESCRIPTION));
         }
     }
 
     private void validatePrice(Double price) throws IncorrectParameterException {
         if (price == null || price < 0) {
-            throw new IncorrectParameterException(BAD_GIFT_CERTIFICATE_PRICE);
+            throw new IncorrectParameterException(String.valueOf(BAD_GIFT_CERTIFICATE_PRICE));
         }
     }
 
     private void validateDuration(int duration) throws IncorrectParameterException {
         if (duration < MIN_DURATION || duration > MAX_DURATION) {
-            throw new IncorrectParameterException(BAD_GIFT_CERTIFICATE_DURATION);
+            throw new IncorrectParameterException(String.valueOf(BAD_GIFT_CERTIFICATE_DURATION));
         }
     }
 }

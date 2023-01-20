@@ -4,6 +4,7 @@ package com.epam.esm.controller;
 import com.epam.esm.controller.response.ResponseHandler;
 import com.epam.esm.controller.response.ResponseMessage;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.exception.NullPointerException;
 import com.epam.esm.service.TagService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -24,32 +25,32 @@ public class TagController {
     private final TagService tagService;
 
     @GetMapping
-    public ResponseEntity<List<Tag>> getAllTag() {
+    public ResponseEntity<List<Tag>> getAllTag() throws NullPointerException {
         return ResponseEntity.ok(tagService.getAll());
     }
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> findTagById(@PathVariable int id) {
+    public ResponseEntity<Object> findTagById(@PathVariable int id) throws NullPointerException {
         Optional<Tag> optTag = tagService.findById(id);
         Tag tag;
         if (optTag.isPresent()) {
             tag = optTag.get();
             return ResponseHandler.generateResponse(ResponseMessage.SUCCESSFULLY_RECEIVED, HttpStatus.OK, tag);
         } else {
-            return ResponseHandler.generateResponse("Tag with id (" + id + ") was not found", HttpStatus.NOT_FOUND, "[]");
+            return ResponseHandler.generateResponse(ResponseMessage.FIND_BY_TAG_ID_SUCCESS + id, HttpStatus.NOT_FOUND, "[]");
         }
     }
 
     @GetMapping(value = "/name/{tagName}")
-    public ResponseEntity<Object> findByTagName(@PathVariable String tagName) {
+    public ResponseEntity<Object> findByTagName(@PathVariable String tagName) throws NullPointerException {
         Optional<Tag> optTag = tagService.findByName(tagName);
         Tag tag;
         if (optTag.isPresent()) {
             tag = optTag.get();
             return ResponseHandler.generateResponse(ResponseMessage.SUCCESSFULLY_RECEIVED, HttpStatus.OK, tag);
         } else {
-            return ResponseHandler.generateResponse("Tag with name (" + tagName + ") was not found", HttpStatus.NOT_FOUND, "[]");
+            return ResponseHandler.generateResponse(ResponseMessage.FIND_BY_TAG_NAME_SUCCESS + tagName, HttpStatus.NOT_FOUND, "[]");
         }
     }
 
@@ -61,7 +62,7 @@ public class TagController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> delete(@PathVariable Integer id) {
+    public ResponseEntity<Object> delete(@PathVariable Integer id) throws NullPointerException {
         boolean check = tagService.delete(id);
         if (check) {
             return ResponseHandler.generateResponse(ResponseMessage.SUCCESSFULLY_DELETED_TAG + id, HttpStatus.OK);

@@ -2,10 +2,10 @@ package com.epam.esm.repository.impl;
 
 import com.epam.esm.entity.GiftCertificates;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.exception.NullPointerException;
 import com.epam.esm.repository.GiftCertificatesRepo;
 import com.epam.esm.repository.TagRepo;
 import com.epam.esm.repository.mapper.GiftRowMapper;
-
 import com.epam.esm.repository.query.QueryCreator;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -50,11 +50,12 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
     }
 
     @Override
-    public Optional<GiftCertificates> findById(Integer id) {
+    public Optional<GiftCertificates> findById(Integer id) throws NullPointerException {
         List<GiftCertificates> results = jdbcTemplate.query(SELECT_BY_CERTIFICATES_ID, new GiftRowMapper(), id);
-        return !results.isEmpty() ?
-                Optional.of(results.get(0)) :
+
+        return !results.isEmpty() ? Optional.of(results.get(0)) :
                 Optional.empty();
+
     }
 
     @Override
@@ -65,8 +66,8 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
     }
 
     @Override
-    public void create(GiftCertificates giftCertificate) {
-        giftCertificate.setCreate_date(LocalDateTime.now());
+    public void create(GiftCertificates giftCertificate) throws NullPointerException {
+        giftCertificate.setLastUpdateDate(LocalDateTime.now());
         int giftCertificateId = createGiftCertificate(giftCertificate);
         List<Tag> list = giftCertificate.getTags();
         createTags(giftCertificateId, list);
@@ -82,7 +83,7 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
 
     @Override
     public boolean update(GiftCertificates giftCertificate) {
-        giftCertificate.setLast_update_date(LocalDateTime.now());
+        giftCertificate.setLastUpdateDate(LocalDateTime.now());
 
         return jdbcTemplate.update(UPDATE_GIFT_CERTIFICATE,
                 giftCertificate.getName(),
@@ -114,8 +115,9 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
         int newId;
         if (tagKeyHolder.getKeys().size() > 1) {
             newId = (int) tagKeyHolder.getKeys().get("tag_id");
+
         } else {
-            newId= tagKeyHolder.getKey().intValue();
+            newId = tagKeyHolder.getKey().intValue();
         }
         return newId;
     }
@@ -133,8 +135,8 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
                         giftCertificate.getDescription(),
                         giftCertificate.getPrice(),
                         giftCertificate.getDuration(),
-                        giftCertificate.getCreate_date(),
-                        giftCertificate.getLast_update_date()));
+                        giftCertificate.getCreateDate(),
+                        giftCertificate.getLastUpdateDate()));
 
         GeneratedKeyHolder giftKeyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(pscGift, giftKeyHolder);
@@ -142,7 +144,7 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
         if (giftKeyHolder.getKeys().size() > 1) {
             newId = (int) giftKeyHolder.getKeys().get("id");
         } else {
-            newId= giftKeyHolder.getKey().intValue();
+            newId = giftKeyHolder.getKey().intValue();
         }
         return newId;
     }
