@@ -1,6 +1,6 @@
 package com.epam.esm.repository.mapper;
 
-import com.epam.esm.entity.GiftCertificates;
+import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -11,42 +11,44 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.epam.esm.repository.mapper.ColumnName.*;
-
 
 @Component
-public class GiftRowMapper implements ResultSetExtractor<List<GiftCertificates>>  {
+public class GiftRowMapper implements ResultSetExtractor<List<GiftCertificate>> {
     @Override
-    public List<GiftCertificates> extractData(ResultSet rs) throws SQLException, DataAccessException {
-        List<GiftCertificates> giftCertificates = new ArrayList<>();
+    public List<GiftCertificate> extractData(ResultSet rs) throws SQLException, DataAccessException {
+
+        List<GiftCertificate> giftCertificates = new ArrayList<>();
         rs.next();
-        while (!rs.isAfterLast()) {
-
-            GiftCertificates giftCertificate = GiftCertificates.builder()
-                    .id(rs.getLong(GIFT_ID))
-                    .name(rs.getString(GIFT_NAME))
-                    .description(rs.getString(GIFT_DESCRIPTION))
-                    .price(rs.getDouble(GIFT_PRICE))
-                    .duration(rs.getInt(GIFT_DURATION))
-                    .createDate(rs.getTimestamp(GIFT_CREATE_DATE).toLocalDateTime())
-                    .build();
-            String lastUpdateDate = rs.getString(GIFT_LAST_UPDATE_DATE);
-            if (lastUpdateDate != null) {
-                giftCertificate.setLastUpdateDate(rs.getTimestamp(GIFT_LAST_UPDATE_DATE).toLocalDateTime());
-            }
-
-            List<Tag> tags = new ArrayList<>();
-            while (!rs.isAfterLast() && rs.getInt(GIFT_ID) == giftCertificate.getId()) {
-                Tag tag = Tag.builder()
-                        .id(rs.getLong(TAG_ID))
-                        .name(rs.getString(TAG_NAME))
+        try {
+            while (!rs.isAfterLast()) {
+                GiftCertificate giftCertificate = GiftCertificate.builder()
+                        .id(rs.getLong("id"))
+                        .name(rs.getString("name"))
+                        .description(rs.getString("description"))
+                        .price(rs.getDouble("price"))
+                        .duration(rs.getInt("duration"))
+                        .createDate(rs.getTimestamp("create_date").toLocalDateTime())
                         .build();
-                tags.add(tag);
-                rs.next();
+                String lastUpdateDate = rs.getString("last_update_date");
+                if (lastUpdateDate != null) {
+                    giftCertificate.setLastUpdateDate(rs.getTimestamp("last_update_date").toLocalDateTime());
+                }
+                List<Tag> tags = new ArrayList<>();
+                while (!rs.isAfterLast() && rs.getInt("id") == giftCertificate.getId()) {
+                    Tag tag = Tag.builder()
+                            .id(rs.getLong("tag_id"))
+                            .name(rs.getString("tag_name"))
+                            .build();
+                    tags.add(tag);
+                    rs.next();
+                }
+                giftCertificate.setTags(tags);
+                giftCertificates.add(giftCertificate);
             }
-            giftCertificate.setTags(tags);
-            giftCertificates.add(giftCertificate);
+
+            return giftCertificates;
+        } catch (Exception e) {
+            throw new SQLException(e.getMessage());
         }
-        return giftCertificates;
     }
 }

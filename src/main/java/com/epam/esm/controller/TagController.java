@@ -1,73 +1,54 @@
 package com.epam.esm.controller;
 
 
-import com.epam.esm.controller.response.ResponseHandler;
-import com.epam.esm.controller.response.ResponseMessage;
+import com.epam.esm.common.ResponseModel;
+import com.epam.esm.common.ResultMessage;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.NullPointerException;
+import com.epam.esm.exception.GiftCertificateException;
 import com.epam.esm.service.TagService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "localhost:8080")
 @RequiredArgsConstructor
 @RequestMapping(value = "/api/tag", produces = "application/json")
 public class TagController {
-    Logger logger = LoggerFactory.getLogger(TagController.class.getName());
     private final TagService tagService;
 
     @GetMapping
-    public ResponseEntity<List<Tag>> getAllTag() throws NullPointerException {
+    public ResponseEntity<ResponseModel<List<Tag>>> getAll() {
         return ResponseEntity.ok(tagService.getAll());
     }
 
-
     @GetMapping("/{id}")
-    public ResponseEntity<Object> findTagById(@PathVariable int id) throws NullPointerException {
-        Optional<Tag> optTag = tagService.findById(id);
-        Tag tag;
-        if (optTag.isPresent()) {
-            tag = optTag.get();
-            return ResponseHandler.generateResponse(ResponseMessage.SUCCESSFULLY_RECEIVED, HttpStatus.OK, tag);
-        } else {
-            return ResponseHandler.generateResponse(ResponseMessage.FIND_BY_TAG_ID_SUCCESS + id, HttpStatus.NOT_FOUND, "[]");
-        }
+    public ResponseEntity<ResponseModel<Tag>> findTagById(@PathVariable int id) throws GiftCertificateException {
+        return ResponseEntity.ok(tagService.getById(id));
     }
 
     @GetMapping(value = "/name/{tagName}")
-    public ResponseEntity<Object> findByTagName(@PathVariable String tagName) throws NullPointerException {
-        Optional<Tag> optTag = tagService.findByName(tagName);
-        Tag tag;
-        if (optTag.isPresent()) {
-            tag = optTag.get();
-            return ResponseHandler.generateResponse(ResponseMessage.SUCCESSFULLY_RECEIVED, HttpStatus.OK, tag);
-        } else {
-            return ResponseHandler.generateResponse(ResponseMessage.FIND_BY_TAG_NAME_SUCCESS + tagName, HttpStatus.NOT_FOUND, "[]");
-        }
+    public ResponseEntity<ResponseModel<Tag>> findByTagName(@PathVariable String tagName) {
+        return ResponseEntity.ok(tagService.findByName(tagName));
     }
 
     @PostMapping()
-    public ResponseEntity<Object> create(@RequestBody Tag entity) {
-        tagService.create(entity);
-        return ResponseHandler.generateResponse(ResponseMessage.SUCCESSFULLY_CREATED, HttpStatus.OK);
-
+    public ResponseEntity<ResponseModel<ResultMessage>> create(@RequestBody Tag tag) {
+        return ResponseEntity.ok(tagService.create(tag));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> delete(@PathVariable Integer id) throws NullPointerException {
-        boolean check = tagService.delete(id);
-        if (check) {
-            return ResponseHandler.generateResponse(ResponseMessage.SUCCESSFULLY_DELETED_TAG + id, HttpStatus.OK);
-        } else {
-            return ResponseHandler.generateResponse(ResponseMessage.DELETE_ERROR + id, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<ResponseModel<ResultMessage>> delete(@PathVariable("id") Integer id) throws NoSuchFieldException {
+        return ResponseEntity.ok(tagService.delete(id));
     }
+
 }

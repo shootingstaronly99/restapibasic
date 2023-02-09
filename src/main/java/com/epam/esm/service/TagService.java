@@ -1,25 +1,23 @@
 package com.epam.esm.service;
 
+import com.epam.esm.common.ResponseModel;
+import com.epam.esm.common.ResultMessage;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.NullPointerException;
-
+import com.epam.esm.exception.GiftCertificateException;
 
 import java.util.List;
-import java.util.Optional;
 
 /*
  * @author Otabek Javqochdiyev
  * */
 public interface TagService {
-    void create(Tag data) ;
+    ResponseModel<ResultMessage> create(Tag data);
 
-    Optional<Tag> findById(Integer id)throws NullPointerException;
+    ResponseModel<Tag> getById(Integer id);
 
-    boolean delete(Integer id)throws NullPointerException;
+    ResponseModel<Tag> findByName(String name);
 
-    void deleteById(Integer id)throws NullPointerException;
+    ResponseModel<List<Tag>> getAll() throws GiftCertificateException;
 
-    Optional<Tag> findByName(String name)throws NullPointerException;
-    List<Tag> getAll()throws NullPointerException;
-
+    ResponseModel<ResultMessage> delete(Integer id);
 }

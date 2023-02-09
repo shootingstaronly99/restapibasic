@@ -1,8 +1,8 @@
 package com.epam.repository;
 
-import com.epam.esm.entity.GiftCertificates;
+import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.NullPointerException;
+import com.epam.esm.exception.GiftCertificateException;
 import com.epam.esm.repository.GiftCertificatesRepo;
 import com.epam.esm.repository.impl.GiftCertificatesRepoImpl;
 
@@ -44,8 +44,8 @@ class GiftCertificateRepoTest {
 
 
     @Test
-    void shouldGetGiftCertificateById() throws NullPointerException {
-        Optional<GiftCertificates> giftCertificateOpt = giftCertificatesRepo.findById(2);
+    void shouldGetGiftCertificateById() throws GiftCertificateException {
+        Optional<GiftCertificate> giftCertificateOpt = giftCertificatesRepo.findById(2);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime createDate = LocalDateTime.parse("2022-11-12 11:15:10", formatter);
         LocalDateTime lastUpdateDate = LocalDateTime.parse("2022-11-09 11:15:10", formatter);
@@ -53,8 +53,8 @@ class GiftCertificateRepoTest {
         Tag tag = new Tag(id, "tagName7");
         List<Tag> tags = new ArrayList<>();
         tags.add(tag);
-        GiftCertificates giftCertificateToCompare = new GiftCertificates(2L, "bgiftCertificate2", "description2", 2.22, 2, createDate, lastUpdateDate, tags);
-        GiftCertificates giftCertificate = new GiftCertificates();
+        GiftCertificate giftCertificateToCompare = new GiftCertificate(2L, "bgiftCertificate2", "description2", 2.22, 2, createDate, lastUpdateDate, tags);
+        GiftCertificate giftCertificate = new GiftCertificate();
 
         if (giftCertificateOpt.isPresent()) {
             giftCertificate = giftCertificateOpt.get();
@@ -66,16 +66,16 @@ class GiftCertificateRepoTest {
 
     @Test
     void shouldGetAllGiftCertificates() {
-        List<GiftCertificates> giftCertificates = giftCertificatesRepo.findAll();
+        List<GiftCertificate> giftCertificates = giftCertificatesRepo.findAll();
         assertEquals(5, giftCertificates.size());
     }
 
     @Test
-    void shouldUpdateGiftCertificate() throws NullPointerException{
+    void shouldUpdateGiftCertificate() throws GiftCertificateException {
         int targetGift = 3;
         //Get certificate to update
-        Optional<GiftCertificates> certificate = giftCertificatesRepo.findById(targetGift);
-        GiftCertificates giftCertificate = new GiftCertificates();
+        Optional<GiftCertificate> certificate = giftCertificatesRepo.findById(targetGift);
+        GiftCertificate giftCertificate = new GiftCertificate();
         if (certificate.isPresent()) {
             giftCertificate = certificate.get();
         }
@@ -85,8 +85,8 @@ class GiftCertificateRepoTest {
         giftCertificatesRepo.update(giftCertificate);
 
         //Get updated GiftCertificate
-        Optional<GiftCertificates> updatedCertificate = giftCertificatesRepo.findById(targetGift);
-        GiftCertificates updatedGiftCertificate = new GiftCertificates();
+        Optional<GiftCertificate> updatedCertificate = giftCertificatesRepo.findById(targetGift);
+        GiftCertificate updatedGiftCertificate = new GiftCertificate();
         if (updatedCertificate.isPresent()) {
             updatedGiftCertificate = updatedCertificate.get();
         }
@@ -97,14 +97,14 @@ class GiftCertificateRepoTest {
     }
 
     @Test
-    void shouldDeleteCertificate() {
+    void shouldDeleteCertificate() throws NoSuchFieldException {
         giftCertificatesRepo.delete(2);
-        List<GiftCertificates> afterDelete = giftCertificatesRepo.findAll();
+        List<GiftCertificate> afterDelete = giftCertificatesRepo.findAll();
         assertEquals(4, afterDelete.size());
     }
 
     @Test
-    void shouldCreateGiftCertificate()throws NullPointerException {
+    void shouldCreateGiftCertificate()throws GiftCertificateException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime createDate = LocalDateTime.parse("2022-10-17 11:15:10", formatter);
         LocalDateTime lastUpdateDate = LocalDateTime.parse("2022-10-05 11:15:10", formatter);
@@ -112,10 +112,10 @@ class GiftCertificateRepoTest {
         Tag tag = new Tag(id, "tagName1");
         List<Tag> tags = new ArrayList<>();
         tags.add(tag);
-        GiftCertificates giftCertificateToCreate = new GiftCertificates(5L, "egiftCertificate5", "description5", 5.55, 2, createDate, lastUpdateDate, tags);
+        GiftCertificate giftCertificateToCreate = new GiftCertificate(5L, "egiftCertificate5", "description5", 5.55, 2, createDate, lastUpdateDate, tags);
         giftCertificatesRepo.create(giftCertificateToCreate);
-        Optional<GiftCertificates> giftCertificateToFindOpt = giftCertificatesRepo.findById(5);
-        GiftCertificates giftCertificateToFind = new GiftCertificates();
+        Optional<GiftCertificate> giftCertificateToFindOpt = giftCertificatesRepo.findById(5);
+        GiftCertificate giftCertificateToFind = new GiftCertificate();
         if (giftCertificateToFindOpt.isPresent()) {
             giftCertificateToFind = giftCertificateToFindOpt.get();
         }
@@ -127,7 +127,7 @@ class GiftCertificateRepoTest {
     void shouldFindCertificatesByNameDESC() {
         Map<String, String> query = new HashMap<>();
         query.put("sortByName", "DESC");
-        List<GiftCertificates> list = giftCertificatesRepo.getWithFilters(query);
+        List<GiftCertificate> list = giftCertificatesRepo.getWithFilters(query);
         assertEquals("egiftCertificate5", list.get(0).getName());
     }
 
@@ -135,7 +135,7 @@ class GiftCertificateRepoTest {
     void shouldFindCertificatesByNameASC() {
         Map<String, String> query = new HashMap<>();
         query.put("sortByName", "ASC");
-        List<GiftCertificates> list = giftCertificatesRepo.getWithFilters(query);
+        List<GiftCertificate> list = giftCertificatesRepo.getWithFilters(query);
         assertEquals("agiftCertificate1", list.get(0).getName());
     }
 
@@ -143,7 +143,7 @@ class GiftCertificateRepoTest {
     void shouldFindCertificatesByDateASC() {
         Map<String, String> query = new HashMap<>();
         query.put("sortByDate", "ASC");
-        List<GiftCertificates> list = giftCertificatesRepo.getWithFilters(query);
+        List<GiftCertificate> list = giftCertificatesRepo.getWithFilters(query);
         assertEquals("dgiftCertificate4", list.get(0).getName());
     }
 
@@ -151,7 +151,7 @@ class GiftCertificateRepoTest {
     void shouldFindCertificatesByDateDESC() {
         Map<String, String> query = new HashMap<>();
         query.put("sortByDate", "DESC");
-        List<GiftCertificates> list = giftCertificatesRepo.getWithFilters(query);
+        List<GiftCertificate> list = giftCertificatesRepo.getWithFilters(query);
         assertEquals("egiftCertificate5", list.get(0).getName());
     }
 
@@ -159,7 +159,7 @@ class GiftCertificateRepoTest {
     void shouldFindCertificatesByPartName() {
         Map<String, String> query = new HashMap<>();
         query.put("partName", "agiftCertificate1");
-        List<GiftCertificates> list = giftCertificatesRepo.getWithFilters(query);
+        List<GiftCertificate> list = giftCertificatesRepo.getWithFilters(query);
         assertEquals(1, list.size());
     }
 
@@ -167,7 +167,7 @@ class GiftCertificateRepoTest {
     void shouldFindCertificatesByDescName() {
         Map<String, String> query = new HashMap<>();
         query.put("partDescription", "description2");
-        List<GiftCertificates> list = giftCertificatesRepo.getWithFilters(query);
+        List<GiftCertificate> list = giftCertificatesRepo.getWithFilters(query);
         assertEquals(1, list.size());
     }
 }

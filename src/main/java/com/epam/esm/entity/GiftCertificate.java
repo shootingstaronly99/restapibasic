@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class GiftCertificates {
+public class GiftCertificate {
     private Long id;
     private String name;
     private String description;

@@ -1,9 +1,11 @@
 package com.epam.esm.service.impl;
 
-import com.epam.esm.entity.GiftCertificates;
+import com.epam.esm.common.ResponseModel;
+import com.epam.esm.common.ResultMessage;
+import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.exception.GiftCertificateException;
 import com.epam.esm.exception.IncorrectParameterException;
-import com.epam.esm.exception.NullPointerException;
-import com.epam.esm.repository.GiftCertificatesRepo;
+import com.epam.esm.repository.impl.GiftCertificatesRepoImpl;
 import com.epam.esm.service.GiftCertificatesService;
 import com.epam.esm.validator.GiftValidator;
 import lombok.RequiredArgsConstructor;
@@ -17,65 +19,83 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.epam.esm.repository.query.QueryParam.*;
 
 @Service
 @RequiredArgsConstructor
 public class GiftCertificateServiceImpl implements GiftCertificatesService {
-    private final GiftCertificatesRepo giftCertificatesRepo;
+    private final GiftCertificatesRepoImpl giftCertificatesRepo;
 
 
     @Override
-    public List<GiftCertificates> getAll() throws NullPointerException {
-
-        return giftCertificatesRepo.findAll();
+    public ResponseModel<List<GiftCertificate>> getAll() {
+        var gifts = giftCertificatesRepo.findAll();
+        return new ResponseModel<>(gifts);
     }
 
-    @Override
-    public Optional<GiftCertificates> findById(Integer id) throws NullPointerException {
-        return giftCertificatesRepo.findById(id);
-    }
 
     @Override
-    @Transactional
-    public void create(GiftCertificates giftCertificate) throws NullPointerException {
-        giftCertificatesRepo.create(giftCertificate);
-    }
-
-    @Override
-    @Transactional
-    public boolean delete(Integer id) {
-        return giftCertificatesRepo.delete(id);
-    }
-
-    @Override
-    public boolean update(int id, GiftCertificates giftCertificate) throws IncorrectParameterException ,NullPointerException{
-         Optional<GiftCertificates> certificate = giftCertificatesRepo.findById(id);
-         GiftCertificates gift = new GiftCertificates();
-        if (certificate.isPresent()) {
-            gift = certificate.get();
+    public ResponseModel<GiftCertificate> getById(Integer id) throws GiftCertificateException {
+        try {
+            Optional<GiftCertificate> giftCertificate = giftCertificatesRepo.findById(id);
+            return new ResponseModel<>(giftCertificate.get());
+        } catch (Exception x) {
+            throw new GiftCertificateException(x.getMessage());
         }
-         GiftCertificates validatedGift = GiftValidator.validateForUpdate(gift, giftCertificate);
+    }
 
+    @Override
+    @Transactional
+    public ResponseModel<ResultMessage> create(GiftCertificate giftCertificate) {
+        try {
+            GiftValidator.validForCreate(giftCertificate);
+            giftCertificatesRepo.create(giftCertificate);
+            var res = ResultMessage.builder()
+                    .message("Gift Certificate Successfully created!")
+                    .build();
+            return new ResponseModel<>(res);
+
+        } catch (Exception e) {
+            throw new GiftCertificateException(e.getMessage());
+        }
+
+    }
+
+    @Override
+    @Transactional
+    public ResponseModel<ResultMessage> delete(Integer id) throws NoSuchFieldException {
+
+        if (giftCertificatesRepo.findById(id).isPresent()) {
+            giftCertificatesRepo.delete(id);
+            return new ResponseModel<>(new ResultMessage("Successfully deleted !"));
+        }
+
+        return new ResponseModel<>(new ResultMessage("This is gift certificates not found!"));
+    }
+
+    @Override
+    public ResponseModel<ResultMessage> update(int id, GiftCertificate giftCertificate) throws IncorrectParameterException, GiftCertificateException {
+        var gift = getById(id).getData();
+        GiftCertificate validatedGift = GiftValidator.validateForUpdate(gift, giftCertificate);
         validatedGift.setLastUpdateDate(LocalDateTime.now());
-         return giftCertificatesRepo.update(gift);
+        giftCertificatesRepo.update(gift);
+        return new ResponseModel<>(new ResultMessage("Gift Certificate successfully updated!"));
     }
 
     @Override
-    public boolean updateGiftTag(int id) {
-        return giftCertificatesRepo.updateGiftTag(id);
+    public ResponseModel<List<GiftCertificate>> searchWithFilter(MultiValueMap<String, String> requestParams) {
+        try {
+            Map<String, String> map = new HashMap<>();
+            map.put("tagName", getSingleRequestParameter(requestParams, "tagName"));
+            map.put("giftName", getSingleRequestParameter(requestParams, "giftName"));
+            map.put("giftDescription", getSingleRequestParameter(requestParams, "giftDescription"));
+            map.put("sortByName", getSingleRequestParameter(requestParams, "sorByName"));
+            map.put("sortByDate", getSingleRequestParameter(requestParams, "sortByDate"));
+            return new ResponseModel<>(giftCertificatesRepo.getWithFilters(map));
+        } catch (Exception e) {
+            throw new GiftCertificateException(e.getMessage());
+        }
     }
 
-    @Override
-    public List<GiftCertificates> doFilter(MultiValueMap<String, String> requestParams) {
-        Map<String, String> map = new HashMap<>();
-        map.put(TAG_NAME, getSingleRequestParameter(requestParams, TAG_NAME));
-        map.put(PART_NAME, getSingleRequestParameter(requestParams, PART_NAME));
-        map.put(PART_DESCRIPTION, getSingleRequestParameter(requestParams, PART_DESCRIPTION));
-        map.put(SORT_BY_NAME, getSingleRequestParameter(requestParams, SORT_BY_NAME));
-        map.put(SORT_BY_DATE, getSingleRequestParameter(requestParams, SORT_BY_DATE));
-        return giftCertificatesRepo.getWithFilters(map);
-    }
 
     private String getSingleRequestParameter(MultiValueMap<String, String> requestParams, String parameter) {
         if (requestParams.containsKey(parameter)) {

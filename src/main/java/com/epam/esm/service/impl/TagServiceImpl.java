@@ -1,9 +1,13 @@
 package com.epam.esm.service.impl;
 
+import com.epam.esm.common.ResponseModel;
+import com.epam.esm.common.ResultMessage;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.NullPointerException;
+import com.epam.esm.exception.ObjectNotFoundException;
+import com.epam.esm.exception.TagException;
 import com.epam.esm.repository.impl.TagRepoImpl;
 import com.epam.esm.service.TagService;
+import com.epam.esm.validator.TagValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,35 +23,54 @@ public class TagServiceImpl implements TagService {
 
     @Override
     @Transactional
-    public List<Tag> getAll() {
-        return tagRepo.findAll();
+    public ResponseModel<List<Tag>> getAll() {
+
+        var tags = tagRepo.findAll();
+        return new ResponseModel<>(tags);
     }
 
     @Override
-    public void create(Tag data) {
-        tagRepo.create(data);
+    public ResponseModel<ResultMessage> delete(Integer id) {
+        if (tagRepo.findById(id).isPresent()) {
+            tagRepo.delete(id);
+            return new ResponseModel<>(new ResultMessage("Successfully deleted !"));
+
+        }
+        return new ResponseModel<>(new ResultMessage("Tag not found!"));
+
+    }
+
+    @Override
+    @Transactional
+    public ResponseModel<ResultMessage> create(Tag data) {
+        try {
+            TagValidator.validateForCreate(data);
+            tagRepo.create(data);
+            var res = ResultMessage.builder()
+                    .message("Tag Successfully created!")
+                    .build();
+            return new ResponseModel<>(res);
+        } catch (Exception e) {
+            throw new TagException(e.getMessage());
+        }
     }
 
 
     @Override
-    public Optional<Tag> findById(Integer id) throws NullPointerException{
-        return tagRepo.findById(id);
+    public ResponseModel<Tag> getById(Integer id) {
+        try {
+            Optional<Tag> tag = tagRepo.findById(id);
+            return new ResponseModel<>(tag.get());
+        } catch (Exception x) {
+            throw new TagException(x.getMessage());
+        }
     }
 
     @Override
-    public boolean delete(Integer id) throws NullPointerException {
-        deleteById(id);
-        return true;
-    }
-
-    @Override
-    public void deleteById(Integer id) throws NullPointerException {
-        tagRepo.deleteById(id);
-    }
-
-    @Override
-    public Optional<Tag> findByName(String name)throws NullPointerException {
-        return tagRepo.findByName(name);
+    public ResponseModel<Tag> findByName(String name) {
+        var tag = tagRepo.findByName(name).orElseThrow(() ->
+                new ObjectNotFoundException("This named tage can't find! "));
+        return new ResponseModel<>(tag);
     }
 
 

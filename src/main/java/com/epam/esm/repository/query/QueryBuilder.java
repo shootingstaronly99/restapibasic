@@ -5,10 +5,10 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
-public class QueryCreator {
+public class QueryBuilder {
     public static final String BASE_QUERY = "SELECT gc.id," +
             "gc.name," +
-            " gc.description," +
+            "gc.description," +
             " gc.price," +
             "gc.duration," +
             " gc.create_date," +
@@ -18,16 +18,17 @@ public class QueryCreator {
             " FROM gift_tags gt" +
             " JOIN gift_certificates gc ON gt.gift_id = gc.id" +
             "  JOIN tag t ON gt.tag_id = t.tag_id ";
+
     public String createGetQuery(Map<String, String> fields) {
         StringBuilder query = new StringBuilder(BASE_QUERY);
         if (fields.get("tagName") != null) {
             addParameter(query, "t.tag_name", fields.get("tagName"));
         }
-        if (fields.get("partName") != null) {
-            addPartParameter(query, "gc.name", fields.get("partName"));
+        if (fields.get("giftName") != null) {
+            addPartParameter(query, "gc.name", fields.get("giftName"));
         }
-        if (fields.get("partDescription") != null) {
-            addPartParameter(query, "gc.description", fields.get("partDescription"));
+        if (fields.get("giftDescription") != null) {
+            addPartParameter(query, "gc.description", fields.get("giftDescription"));
         }
         if (fields.get("sortByName") != null) {
             addSortParameter(query, "gc.name", fields.get("sortByName"));
@@ -37,6 +38,7 @@ public class QueryCreator {
         }
         return query.toString();
     }
+
     private void addParameter(StringBuilder query, String partParameter, String value) {
         if (query.toString().contains("WHERE")) {
             query.append(" AND ");
@@ -45,6 +47,7 @@ public class QueryCreator {
         }
         query.append(partParameter).append("='").append(value).append('\'');
     }
+
     private void addPartParameter(StringBuilder query, String partParameter, String value) {
         if (query.toString().contains("WHERE")) {
             query.append(" AND ");
@@ -53,6 +56,7 @@ public class QueryCreator {
         }
         query.append(partParameter).append(" LIKE '%").append(value).append("%'");
     }
+
     private void addSortParameter(StringBuilder query, String sortParameter, String value) {
         if (query.toString().contains("ORDER BY")) {
             query.append(", ");

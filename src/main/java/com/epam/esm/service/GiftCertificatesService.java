@@ -1,29 +1,29 @@
 package com.epam.esm.service;
 
-import com.epam.esm.entity.GiftCertificates;
+import com.epam.esm.common.ResponseModel;
+import com.epam.esm.common.ResultMessage;
+import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.exception.IncorrectParameterException;
-import com.epam.esm.exception.NullPointerException;
 import org.springframework.util.MultiValueMap;
 
 import java.util.List;
-import java.util.Optional;
 
 /*
  * @author Otabek Javqochdiyev
  * */
 public interface GiftCertificatesService {
-    Optional<GiftCertificates> findById(Integer id)throws NullPointerException;
+    ResponseModel<GiftCertificate> getById(Integer id);
 
-    void create(GiftCertificates giftCertificate)throws NullPointerException;
+    ResponseModel<ResultMessage> create(GiftCertificate giftCertificate);
 
-    boolean delete(Integer id)throws NullPointerException;
+    ResponseModel<ResultMessage> delete(Integer id) throws NoSuchFieldException;
 
-    boolean update(int id, GiftCertificates giftCertificate) throws IncorrectParameterException,NullPointerException;
+    ResponseModel<ResultMessage> update(int id, GiftCertificate giftCertificate) throws IncorrectParameterException;
 
-    boolean updateGiftTag(int id);
 
-    List<GiftCertificates> doFilter(MultiValueMap<String, String> requestParams);
-    List<GiftCertificates> getAll()throws NullPointerException;
+    ResponseModel<List<GiftCertificate>> searchWithFilter(MultiValueMap<String, String> requestParams);
+
+    ResponseModel<List<GiftCertificate>> getAll();
 
 
 }

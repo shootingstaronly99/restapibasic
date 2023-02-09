@@ -1,12 +1,13 @@
 package com.epam.esm.repository.impl;
 
-import com.epam.esm.entity.GiftCertificates;
+import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.NullPointerException;
+import com.epam.esm.exception.GiftCertificateException;
 import com.epam.esm.repository.GiftCertificatesRepo;
 import com.epam.esm.repository.TagRepo;
 import com.epam.esm.repository.mapper.GiftRowMapper;
-import com.epam.esm.repository.query.QueryCreator;
+import com.epam.esm.repository.query.QueryBuilder;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementCreatorFactory;
@@ -16,7 +17,11 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.Types;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 @Repository
 public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
@@ -30,10 +35,8 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
     public static final String DELETE_GIFT_CERTIFICATE_TAG_BY_ID = " DELETE FROM gift_tags WHERE gift_id = ?";
     public static final String DELETE_GIFT_CERTIFICATE_BY_ID = " DELETE FROM gift_certificates WHERE id = ?";
     public static final String UPDATE_GIFT_CERTIFICATE = "UPDATE gift_certificates SET name=?,  description=?, price=?,  duration=?, last_update_date=?  WHERE id =?";
-    public static final String UPDATE_GIFT_CERTIFICATE_TAG = "UPDATE tag SET tag_name= ? WHERE tag_id= ?";
     public static final String CREATE_TAG = "INSERT INTO tag (tag_name) VALUES(?)";
     public static final String CREATE_GIFT_WITH_TAG = " INSERT INTO gift_tags  (gift_id , tag_id) VALUES(?,?)";
-
 
     private final JdbcTemplate jdbcTemplate;
     private final TagRepo tagRepo;
@@ -45,44 +48,61 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
     }
 
     @Override
-    public List<GiftCertificates> findAll() {
-        return jdbcTemplate.query(SELECT_ALL_GIFT_CERTIFICATES, new GiftRowMapper());
+    public List<GiftCertificate> findAll() {
+        try {
+            return jdbcTemplate.query(SELECT_ALL_GIFT_CERTIFICATES, new GiftRowMapper());
+        } catch (EmptyResultDataAccessException e) {
+            throw new GiftCertificateException("Empty database!");
+        }
     }
 
     @Override
-    public Optional<GiftCertificates> findById(Integer id) throws NullPointerException {
-        List<GiftCertificates> results = jdbcTemplate.query(SELECT_BY_CERTIFICATES_ID, new GiftRowMapper(), id);
+    public Optional<GiftCertificate> findById(Integer id) {
+        try {
+            List<GiftCertificate> results = jdbcTemplate.query(SELECT_BY_CERTIFICATES_ID, new GiftRowMapper(), id);
+            return Objects.requireNonNull(results.stream()).findFirst();
+        } catch (Exception e) {
+            throw new GiftCertificateException("Can't find gift with  id " + id);
+        }
+    }
 
-        return !results.isEmpty() ? Optional.of(results.get(0)) :
-                Optional.empty();
 
+    @Override
+    public List<GiftCertificate> getWithFilters(Map<String, String> fields) {
+        try {
+            QueryBuilder queryCreator = new QueryBuilder();
+            String query = queryCreator.createGetQuery(fields);
+            return jdbcTemplate.query(query, new GiftRowMapper());
+        } catch (Exception x) {
+            throw new GiftCertificateException("Error with creating filter");
+        }
     }
 
     @Override
-    public List<GiftCertificates> getWithFilters(Map<String, String> fields) {
-        QueryCreator queryCreator = new QueryCreator();
-        String query = queryCreator.createGetQuery(fields);
-        return jdbcTemplate.query(query, new GiftRowMapper());
+    public void create(GiftCertificate giftCertificate) {
+        try {
+            giftCertificate.setCreateDate(LocalDateTime.now());
+            int giftCertificateId = createGiftCertificate(giftCertificate);
+            List<Tag> list = giftCertificate.getTags();
+            createTags(giftCertificateId, list);
+        } catch (Exception e) {
+            throw new GiftCertificateException("Problem with creating  certificate! Please check again!.");
+        }
     }
 
     @Override
-    public void create(GiftCertificates giftCertificate) throws NullPointerException {
-        giftCertificate.setLastUpdateDate(LocalDateTime.now());
-        int giftCertificateId = createGiftCertificate(giftCertificate);
-        List<Tag> list = giftCertificate.getTags();
-        createTags(giftCertificateId, list);
-    }
-
-    @Override
-    public boolean delete(Integer id) {
+    public boolean delete(Integer id) throws NoSuchFieldException {
         int giftTag = jdbcTemplate.update(DELETE_GIFT_CERTIFICATE_TAG_BY_ID, id);
         int giftCertificate = jdbcTemplate.update(DELETE_GIFT_CERTIFICATE_BY_ID, id);
-
+        if (giftCertificate == 0 && giftTag != 0) {
+            return (giftTag | giftCertificate) == 1;
+        }
         return (giftCertificate & giftTag) == 1;
     }
 
+
     @Override
-    public boolean update(GiftCertificates giftCertificate) {
+    public boolean update(GiftCertificate giftCertificate) {
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
 
         return jdbcTemplate.update(UPDATE_GIFT_CERTIFICATE,
@@ -94,11 +114,6 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
                 giftCertificate.getId()) != 0;
     }
 
-    @Override
-    public boolean updateGiftTag(int id) {
-        return jdbcTemplate.update(UPDATE_GIFT_CERTIFICATE_TAG, id) != 0;
-    }
-
 
     private int createTag(Tag tag) {
         PreparedStatementCreatorFactory pscfTag = new PreparedStatementCreatorFactory(CREATE_TAG, Types.VARCHAR);
@@ -107,22 +122,19 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
         PreparedStatementCreator pscTag = pscfTag.newPreparedStatementCreator(
                 Arrays.asList(
                         tag.getName()));
-
-
         GeneratedKeyHolder tagKeyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(pscTag, tagKeyHolder);
-
         int newId;
-        if (tagKeyHolder.getKeys().size() > 1) {
-            newId = (int) tagKeyHolder.getKeys().get("tag_id");
+        if (Objects.requireNonNull(tagKeyHolder.getKeys()).size() > 1) {
+            newId = (int) Objects.requireNonNull(tagKeyHolder.getKeys()).get("tag_id");
 
         } else {
-            newId = tagKeyHolder.getKey().intValue();
+            newId = Objects.requireNonNull(tagKeyHolder.getKey()).intValue();
         }
         return newId;
     }
 
-    private int createGiftCertificate(GiftCertificates giftCertificate) {
+    private int createGiftCertificate(GiftCertificate giftCertificate) {
         PreparedStatementCreatorFactory pscfGift = new PreparedStatementCreatorFactory(
                 CREATE_GIFT_CERTIFICATE,
                 Types.VARCHAR, Types.VARCHAR, Types.DOUBLE, Types.INTEGER, Types.TIMESTAMP, Types.TIMESTAMP
@@ -141,10 +153,10 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
         GeneratedKeyHolder giftKeyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(pscGift, giftKeyHolder);
         int newId;
-        if (giftKeyHolder.getKeys().size() > 1) {
-            newId = (int) giftKeyHolder.getKeys().get("id");
+        if (Objects.requireNonNull(giftKeyHolder.getKeys()).size() > 1) {
+            newId = (int) Objects.requireNonNull(giftKeyHolder.getKeys()).get("id");
         } else {
-            newId = giftKeyHolder.getKey().intValue();
+            newId = Objects.requireNonNull(giftKeyHolder.getKey()).intValue();
         }
         return newId;
     }
@@ -164,4 +176,5 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
             }
         }
     }
+
 }

@@ -19,7 +19,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<Object> handleNoSuchElementException(HttpServletRequest request) {
-        String message = "Requested resource not found (id=" + request.getParameter("id") + ")";
+        String message = "Requested resource not found (id=" + request.getParameter("id ") + ")";
         int statusCode = HttpStatus.NOT_FOUND.value();
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(HttpStatus.NOT_FOUND)
@@ -53,8 +53,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(errorResponse);
     }
 
-    @ExceptionHandler(NullPointerException.class)
-    public ResponseEntity<Object> handleNullPointerException(NullPointerException e) {
+    @ExceptionHandler(GiftCertificateException.class)
+    public ResponseEntity<Object> handleNullPointerException(GiftCertificateException e) {
         String message = e.getLocalizedMessage();
         int statusCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
         ErrorResponse errorResponse = ErrorResponse.builder()

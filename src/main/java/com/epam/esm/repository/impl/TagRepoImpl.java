@@ -1,7 +1,7 @@
 package com.epam.esm.repository.impl;
 
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.NullPointerException;
+import com.epam.esm.exception.TagException;
 import com.epam.esm.repository.TagRepo;
 import com.epam.esm.repository.mapper.TagRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -17,8 +18,20 @@ public class TagRepoImpl implements TagRepo {
     public static final String CREATE_TAG = "INSERT INTO tag  (tag_name) VALUES(?)";
     public static final String SELECT_TAG_BY_ID = " SELECT tag_id, tag_name  FROM tag WHERE tag_id = ?";
     public static final String SELECT_ALL_TAGS = "SELECT tag_id, tag_name  FROM tag";
-    public static final String DELETE_TAG = " DELETE  FROM tag  WHERE tag_id = ?";
-    public static final String SELECT_TAG_BY_NAME = "SELECT tag_id,  tag_name    FROM tag   WHERE tag_name = ?";
+    public static final String SELECT_TAG_BY_NAME = "SELECT gc.id," +
+            "           gc.name," +
+            "            gc.description," +
+            "             gc.price," +
+            "            gc.duration," +
+            "            gc.create_date," +
+            "            gc.last_update_date," +
+            "            t.tag_id," +
+            "            t.tag_name" +
+            "            FROM gift_tags gt" +
+            "            JOIN gift_certificates gc ON gt.gift_id = gc.id" +
+            "            JOIN tag t ON gt.tag_id = t.tag_id  WHERE t.tag_name = ?";
+    public static final String DELETE_GIFT_TAG = "DELETE FROM gift_tags  WHERE tag_id= ?";
+    public static final String DELETE_TAG = "DELETE FROM tag  WHERE tag_id= ?";
 
 
     public TagRepoImpl(DataSource dataSource) {
@@ -32,27 +45,35 @@ public class TagRepoImpl implements TagRepo {
     }
 
     @Override
-    public Optional<Tag> findById(Integer id) throws NullPointerException {
-        List<Tag> list = jdbcTemplate.query(SELECT_TAG_BY_ID, new TagRowMapper(), id);
-        return !list.isEmpty() ? Optional.of(list.get(0)) :
-                Optional.empty();
+    public Optional<Tag> findById(Integer id) throws TagException {
+        try {
+            List<Tag> list = jdbcTemplate.query(SELECT_TAG_BY_ID, new TagRowMapper(), id);
+            return Objects.requireNonNull(list.stream()).findFirst();
+        } catch (Exception e) {
+            throw new TagException("Can't find tag with id " + id);
+        }
+
     }
 
     @Override
     public void create(Tag data) {
-        jdbcTemplate.update(CREATE_TAG, data.getName());
+        try {
+            jdbcTemplate.update(CREATE_TAG, data.getName());
+        } catch (Exception x) {
+            throw new TagException("Problem with creating tag , Please check again! ");
+        }
     }
-
 
     @Override
     public boolean delete(Integer id) {
-        return jdbcTemplate.update(DELETE_TAG, id) != 0;
+        int giftTag = jdbcTemplate.update(DELETE_GIFT_TAG, id);
+        int tag = jdbcTemplate.update(DELETE_TAG, id);
+        if (giftTag == 0 && tag != 0)
+            return (giftTag | tag) == 1;
+        return (giftTag & tag) == 1;
+
     }
 
-    @Override
-    public void deleteById(Integer id) {
-        jdbcTemplate.query(DELETE_TAG, new TagRowMapper());
-    }
 
     @Override
     public Optional<Tag> findByName(String name) {
@@ -61,4 +82,6 @@ public class TagRepoImpl implements TagRepo {
                 Optional.of(list.get(0)) :
                 Optional.empty();
     }
+
+
 }
