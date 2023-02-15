@@ -3,7 +3,6 @@ package com.epam.service;
 import com.epam.esm.common.ResponseModel;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.GiftCertificateException;
-import com.epam.esm.exception.IncorrectParameterException;
 import com.epam.esm.repository.impl.TagRepoImpl;
 import com.epam.esm.service.impl.TagServiceImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -63,7 +62,7 @@ class TagServiceTest {
 
 
     @Test
-    void shouldCreateTag() throws GiftCertificateException, IncorrectParameterException {
+    void shouldCreateTag() throws GiftCertificateException {
         Long id = 6L;
         Tag tagToCreate = new Tag(id, "Tag 6");
         System.out.println(tagToCreate);

@@ -13,33 +13,32 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
+/*
+Service for Tag entity
+ */
 @Service
 @RequiredArgsConstructor
 public class TagServiceImpl implements TagService {
     private final TagRepoImpl tagRepo;
 
-
+    //GetAll for Tag
     @Override
     @Transactional
     public ResponseModel<List<Tag>> getAll() {
-
         var tags = tagRepo.findAll();
         return new ResponseModel<>(tags);
     }
 
+    //Delete for Tag
     @Override
     public ResponseModel<ResultMessage> delete(Integer id) {
-        if (tagRepo.findById(id).isPresent()) {
-            tagRepo.delete(id);
-            return new ResponseModel<>(new ResultMessage("Successfully deleted !"));
-
-        }
-        return new ResponseModel<>(new ResultMessage("Tag not found!"));
-
+        tagRepo.findById(id);
+        tagRepo.delete(id);
+        return new ResponseModel<>(new ResultMessage("Successfully deleted !"));
     }
 
+    //Create for Tag
     @Override
     @Transactional
     public ResponseModel<ResultMessage> create(Tag data) {
@@ -55,17 +54,18 @@ public class TagServiceImpl implements TagService {
         }
     }
 
-
+    //GetById for tag entity
     @Override
-    public ResponseModel<Tag> getById(Integer id) {
+    public ResponseModel<Tag> getById(Integer id) throws TagException {
         try {
-            Optional<Tag> tag = tagRepo.findById(id);
-            return new ResponseModel<>(tag.get());
-        } catch (Exception x) {
+            var tag = tagRepo.findById(id);
+            return new ResponseModel<>(tag);
+        } catch (TagException x) {
             throw new TagException(x.getMessage());
         }
     }
 
+    //FindByTagName for create tags method
     @Override
     public ResponseModel<Tag> findByName(String name) {
         var tag = tagRepo.findByName(name).orElseThrow(() ->

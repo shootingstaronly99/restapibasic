@@ -24,7 +24,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -124,10 +123,10 @@ class GiftCertificateServiceImplTest {
         giftCertificate.setName("Update name gift " + targetGift);
         giftCertificate.setDescription("Update desc gift" + targetGift);
         giftCertificateService.update(3, giftCertificate);
-        Optional<GiftCertificate> updatedCertificate = giftCertificatesRepo.findById(targetGift);
+        GiftCertificate updatedCertificate = giftCertificatesRepo.findById(targetGift);
         GiftCertificate updatedGiftCertificate = new GiftCertificate();
-        if (updatedCertificate.isPresent()) {
-            updatedGiftCertificate = updatedCertificate.get();
+        if (updatedCertificate != null) {
+            updatedGiftCertificate = updatedCertificate;
         }
         String name = giftCertificate.getName();
         String updatedName = updatedGiftCertificate.getName();

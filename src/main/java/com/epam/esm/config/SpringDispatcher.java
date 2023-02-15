@@ -5,6 +5,9 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
+/*
+Dispatcher servlet
+ */
 public class SpringDispatcher extends AbstractAnnotationConfigDispatcherServletInitializer {
 
 
@@ -30,6 +33,8 @@ public class SpringDispatcher extends AbstractAnnotationConfigDispatcherServletI
         return ds;
 
     }
+
+    // method for profiles declaring
     @Override
     protected WebApplicationContext createRootApplicationContext() {
         AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();

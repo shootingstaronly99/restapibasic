@@ -17,32 +17,34 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-
+/*
+Service for Gift Certificate
+ */
 @Service
 @RequiredArgsConstructor
 public class GiftCertificateServiceImpl implements GiftCertificatesService {
     private final GiftCertificatesRepoImpl giftCertificatesRepo;
 
-
+    //getAll method for GiftCertificate
     @Override
     public ResponseModel<List<GiftCertificate>> getAll() {
         var gifts = giftCertificatesRepo.findAll();
         return new ResponseModel<>(gifts);
     }
 
-
+    //GetById method for
     @Override
     public ResponseModel<GiftCertificate> getById(Integer id) throws GiftCertificateException {
         try {
-            Optional<GiftCertificate> giftCertificate = giftCertificatesRepo.findById(id);
-            return new ResponseModel<>(giftCertificate.get());
+            var giftCertificate = giftCertificatesRepo.findById(id);
+            return new ResponseModel<>(giftCertificate);
         } catch (Exception x) {
             throw new GiftCertificateException(x.getMessage());
         }
     }
 
+    //Create method for GiftCertificate
     @Override
     @Transactional
     public ResponseModel<ResultMessage> create(GiftCertificate giftCertificate) {
@@ -60,11 +62,12 @@ public class GiftCertificateServiceImpl implements GiftCertificatesService {
 
     }
 
+    //Delete method service for Gift Certificate
     @Override
     @Transactional
     public ResponseModel<ResultMessage> delete(Integer id) throws NoSuchFieldException {
 
-        if (giftCertificatesRepo.findById(id).isPresent()) {
+        if (giftCertificatesRepo.findById(id) != null) {
             giftCertificatesRepo.delete(id);
             return new ResponseModel<>(new ResultMessage("Successfully deleted !"));
         }
@@ -72,6 +75,7 @@ public class GiftCertificateServiceImpl implements GiftCertificatesService {
         return new ResponseModel<>(new ResultMessage("This is gift certificates not found!"));
     }
 
+    //Update method for
     @Override
     public ResponseModel<ResultMessage> update(int id, GiftCertificate giftCertificate) throws IncorrectParameterException, GiftCertificateException {
         var gift = getById(id).getData();
@@ -81,6 +85,7 @@ public class GiftCertificateServiceImpl implements GiftCertificatesService {
         return new ResponseModel<>(new ResultMessage("Gift Certificate successfully updated!"));
     }
 
+    //Filter and Search method
     @Override
     public ResponseModel<List<GiftCertificate>> searchWithFilter(MultiValueMap<String, String> requestParams) {
         try {
@@ -96,7 +101,7 @@ public class GiftCertificateServiceImpl implements GiftCertificatesService {
         }
     }
 
-
+    // additional method for filter and search
     private String getSingleRequestParameter(MultiValueMap<String, String> requestParams, String parameter) {
         if (requestParams.containsKey(parameter)) {
             return requestParams.get(parameter).get(0);

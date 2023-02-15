@@ -5,7 +5,6 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.exception.GiftCertificateException;
 import com.epam.esm.repository.GiftCertificatesRepo;
 import com.epam.esm.repository.impl.GiftCertificatesRepoImpl;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +17,10 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -45,7 +47,7 @@ class GiftCertificateRepoTest {
 
     @Test
     void shouldGetGiftCertificateById() throws GiftCertificateException {
-        Optional<GiftCertificate> giftCertificateOpt = giftCertificatesRepo.findById(2);
+        GiftCertificate giftCertificateOpt = giftCertificatesRepo.findById(2);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime createDate = LocalDateTime.parse("2022-11-12 11:15:10", formatter);
         LocalDateTime lastUpdateDate = LocalDateTime.parse("2022-11-09 11:15:10", formatter);
@@ -56,8 +58,8 @@ class GiftCertificateRepoTest {
         GiftCertificate giftCertificateToCompare = new GiftCertificate(2L, "bgiftCertificate2", "description2", 2.22, 2, createDate, lastUpdateDate, tags);
         GiftCertificate giftCertificate = new GiftCertificate();
 
-        if (giftCertificateOpt.isPresent()) {
-            giftCertificate = giftCertificateOpt.get();
+        if (giftCertificateOpt != null) {
+            giftCertificate = giftCertificateOpt;
         }
 
         boolean check = giftCertificate.equals(giftCertificateToCompare);
@@ -74,10 +76,10 @@ class GiftCertificateRepoTest {
     void shouldUpdateGiftCertificate() throws GiftCertificateException {
         int targetGift = 3;
         //Get certificate to update
-        Optional<GiftCertificate> certificate = giftCertificatesRepo.findById(targetGift);
+        GiftCertificate certificate = giftCertificatesRepo.findById(targetGift);
         GiftCertificate giftCertificate = new GiftCertificate();
-        if (certificate.isPresent()) {
-            giftCertificate = certificate.get();
+        if (certificate != null) {
+            giftCertificate = certificate;
         }
         //Update it with new values
         giftCertificate.setName("Update name gift " + targetGift);
@@ -85,10 +87,10 @@ class GiftCertificateRepoTest {
         giftCertificatesRepo.update(giftCertificate);
 
         //Get updated GiftCertificate
-        Optional<GiftCertificate> updatedCertificate = giftCertificatesRepo.findById(targetGift);
+        GiftCertificate updatedCertificate = giftCertificatesRepo.findById(targetGift);
         GiftCertificate updatedGiftCertificate = new GiftCertificate();
-        if (updatedCertificate.isPresent()) {
-            updatedGiftCertificate = updatedCertificate.get();
+        if (updatedCertificate != null) {
+            updatedGiftCertificate = updatedCertificate;
         }
 
         String name = giftCertificate.getName();
@@ -104,7 +106,7 @@ class GiftCertificateRepoTest {
     }
 
     @Test
-    void shouldCreateGiftCertificate()throws GiftCertificateException {
+    void shouldCreateGiftCertificate() throws GiftCertificateException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime createDate = LocalDateTime.parse("2022-10-17 11:15:10", formatter);
         LocalDateTime lastUpdateDate = LocalDateTime.parse("2022-10-05 11:15:10", formatter);
@@ -114,10 +116,10 @@ class GiftCertificateRepoTest {
         tags.add(tag);
         GiftCertificate giftCertificateToCreate = new GiftCertificate(5L, "egiftCertificate5", "description5", 5.55, 2, createDate, lastUpdateDate, tags);
         giftCertificatesRepo.create(giftCertificateToCreate);
-        Optional<GiftCertificate> giftCertificateToFindOpt = giftCertificatesRepo.findById(5);
+        GiftCertificate giftCertificateToFindOpt = giftCertificatesRepo.findById(5);
         GiftCertificate giftCertificateToFind = new GiftCertificate();
-        if (giftCertificateToFindOpt.isPresent()) {
-            giftCertificateToFind = giftCertificateToFindOpt.get();
+        if (giftCertificateToFindOpt != null) {
+            giftCertificateToFind = giftCertificateToFindOpt;
         }
         boolean check = giftCertificateToCreate.equals(giftCertificateToFind);
         assertFalse(check);

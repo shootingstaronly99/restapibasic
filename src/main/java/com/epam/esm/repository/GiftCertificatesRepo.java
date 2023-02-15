@@ -5,14 +5,16 @@ import com.epam.esm.exception.GiftCertificateException;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 
 public interface GiftCertificatesRepo extends CommonRepo<GiftCertificate> {
+    //method for Filter and Sort
     List<GiftCertificate> getWithFilters(Map<String, String> fields);
 
-    Optional<GiftCertificate> findById(Integer id) throws GiftCertificateException;
+    //FindBYId
+    GiftCertificate findById(Integer id) throws GiftCertificateException;
 
+    //update
     boolean update(GiftCertificate giftCertificate);
 
 

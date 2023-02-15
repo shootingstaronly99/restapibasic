@@ -9,11 +9,13 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Repository
 public class TagRepoImpl implements TagRepo {
+    /*
+    Queries for following methods
+     */
     private final JdbcTemplate jdbcTemplate;
     public static final String CREATE_TAG = "INSERT INTO tag  (tag_name) VALUES(?)";
     public static final String SELECT_TAG_BY_ID = " SELECT tag_id, tag_name  FROM tag WHERE tag_id = ?";
@@ -39,22 +41,20 @@ public class TagRepoImpl implements TagRepo {
 
     }
 
+    //findAll method for getting all tags
     @Override
     public List<Tag> findAll() {
         return jdbcTemplate.query(SELECT_ALL_TAGS, new TagRowMapper());
     }
 
+    //FindById getting tag by id
     @Override
-    public Optional<Tag> findById(Integer id) throws TagException {
-        try {
-            List<Tag> list = jdbcTemplate.query(SELECT_TAG_BY_ID, new TagRowMapper(), id);
-            return Objects.requireNonNull(list.stream()).findFirst();
-        } catch (Exception e) {
-            throw new TagException("Can't find tag with id " + id);
-        }
-
+    public Tag findById(Integer id) {
+        return jdbcTemplate.query(SELECT_TAG_BY_ID, new TagRowMapper(), id).stream().findFirst().orElseThrow(
+                () -> new TagException("Can't find tag with id " + id));
     }
 
+    //create method  for  creating new tag
     @Override
     public void create(Tag data) {
         try {
@@ -64,6 +64,7 @@ public class TagRepoImpl implements TagRepo {
         }
     }
 
+    //Delete method for remove tag by id
     @Override
     public boolean delete(Integer id) {
         int giftTag = jdbcTemplate.update(DELETE_GIFT_TAG, id);
@@ -74,7 +75,7 @@ public class TagRepoImpl implements TagRepo {
 
     }
 
-
+    //Find By name for tag
     @Override
     public Optional<Tag> findByName(String name) {
         List<Tag> list = jdbcTemplate.query(SELECT_TAG_BY_NAME, new TagRowMapper(), name);

@@ -14,6 +14,7 @@ import java.util.List;
 
 @Component
 public class GiftRowMapper implements ResultSetExtractor<List<GiftCertificate>> {
+    //Gift certificate Mapper For database and incoming data.
     @Override
     public List<GiftCertificate> extractData(ResultSet rs) throws SQLException, DataAccessException {
 

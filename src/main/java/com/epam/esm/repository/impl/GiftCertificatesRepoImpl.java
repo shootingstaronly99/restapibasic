@@ -25,6 +25,7 @@ import java.util.Optional;
 
 @Repository
 public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
+    //Queries for following methods
     public static final String CREATE_GIFT_CERTIFICATE = "INSERT INTO gift_certificates  (name, description, price, duration, create_date, last_update_date)" +
             " VALUES(?,?,?,?,?,?)";
     public static final String SELECT_ALL_GIFT_CERTIFICATES = "SELECT gc.id, gc.name, gc.description,gc.price,gc.duration," +
@@ -37,7 +38,6 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
     public static final String UPDATE_GIFT_CERTIFICATE = "UPDATE gift_certificates SET name=?,  description=?, price=?,  duration=?, last_update_date=?  WHERE id =?";
     public static final String CREATE_TAG = "INSERT INTO tag (tag_name) VALUES(?)";
     public static final String CREATE_GIFT_WITH_TAG = " INSERT INTO gift_tags  (gift_id , tag_id) VALUES(?,?)";
-
     private final JdbcTemplate jdbcTemplate;
     private final TagRepo tagRepo;
 
@@ -47,6 +47,7 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
         tagRepo = new TagRepoImpl(dataSource);
     }
 
+    //FindAll method for find all gift certificates
     @Override
     public List<GiftCertificate> findAll() {
         try {
@@ -56,17 +57,15 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
         }
     }
 
+    //FindById for getting  gift by id
     @Override
-    public Optional<GiftCertificate> findById(Integer id) {
-        try {
-            List<GiftCertificate> results = jdbcTemplate.query(SELECT_BY_CERTIFICATES_ID, new GiftRowMapper(), id);
-            return Objects.requireNonNull(results.stream()).findFirst();
-        } catch (Exception e) {
-            throw new GiftCertificateException("Can't find gift with  id " + id);
-        }
+    public GiftCertificate findById(Integer id) {
+        return Objects.requireNonNull(jdbcTemplate.query(SELECT_BY_CERTIFICATES_ID, new GiftRowMapper(), id)).stream().findFirst().
+                orElseThrow(() -> new GiftCertificateException("Can't find gift with  id " + id));
+
     }
 
-
+    //Method for filter and search by fields
     @Override
     public List<GiftCertificate> getWithFilters(Map<String, String> fields) {
         try {
@@ -78,6 +77,7 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
         }
     }
 
+    // Create method which create gift with tag  this method include createGiftCertificate and createTags
     @Override
     public void create(GiftCertificate giftCertificate) {
         try {
@@ -90,6 +90,7 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
         }
     }
 
+    //Method Delete for remove Gift certificate
     @Override
     public boolean delete(Integer id) throws NoSuchFieldException {
         int giftTag = jdbcTemplate.update(DELETE_GIFT_CERTIFICATE_TAG_BY_ID, id);
@@ -100,7 +101,7 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
         return (giftCertificate & giftTag) == 1;
     }
 
-
+    //Update method for changing GiftCertificates
     @Override
     public boolean update(GiftCertificate giftCertificate) {
         giftCertificate.setLastUpdateDate(LocalDateTime.now());
@@ -114,7 +115,7 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
                 giftCertificate.getId()) != 0;
     }
 
-
+    //  Method for creates tags
     private int createTag(Tag tag) {
         PreparedStatementCreatorFactory pscfTag = new PreparedStatementCreatorFactory(CREATE_TAG, Types.VARCHAR);
         pscfTag.setReturnGeneratedKeys(true);
@@ -134,6 +135,7 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
         return newId;
     }
 
+    //Method for create certificates
     private int createGiftCertificate(GiftCertificate giftCertificate) {
         PreparedStatementCreatorFactory pscfGift = new PreparedStatementCreatorFactory(
                 CREATE_GIFT_CERTIFICATE,
@@ -161,6 +163,7 @@ public class GiftCertificatesRepoImpl implements GiftCertificatesRepo {
         return newId;
     }
 
+    //Method for creates tag for gift
     private void createTags(int giftCertificateId, List<Tag> tags) {
         for (Tag tag : tags) {
             String name = tag.getName();

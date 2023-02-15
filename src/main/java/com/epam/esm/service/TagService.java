@@ -3,7 +3,7 @@ package com.epam.esm.service;
 import com.epam.esm.common.ResponseModel;
 import com.epam.esm.common.ResultMessage;
 import com.epam.esm.entity.Tag;
-import com.epam.esm.exception.GiftCertificateException;
+import com.epam.esm.exception.TagException;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public interface TagService {
 
     ResponseModel<Tag> findByName(String name);
 
-    ResponseModel<List<Tag>> getAll() throws GiftCertificateException;
+    ResponseModel<List<Tag>> getAll() throws TagException;
 
     ResponseModel<ResultMessage> delete(Integer id);
 }

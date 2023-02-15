@@ -4,6 +4,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
+/*
+@author Otabek Javqochdiyev
+Query Builder class for  search and filter
+ */
 @Component
 public class QueryBuilder {
     public static final String BASE_QUERY = "SELECT gc.id," +
@@ -19,6 +23,7 @@ public class QueryBuilder {
             " JOIN gift_certificates gc ON gt.gift_id = gc.id" +
             "  JOIN tag t ON gt.tag_id = t.tag_id ";
 
+    //create query for each field checking all fields step by step and generate a common query for filter
     public String createGetQuery(Map<String, String> fields) {
         StringBuilder query = new StringBuilder(BASE_QUERY);
         if (fields.get("tagName") != null) {
